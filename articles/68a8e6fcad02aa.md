@@ -3,7 +3,7 @@ title: "Zenn MCPでCodexリポジトリをやさしく分解してみた"
 emoji: "🤖"
 type: "tech"
 topics: ["rust", "cli", "tui", "mcp", "ai"]
-published: false
+published: true
 ---
 
 「AIエージェントって、コードの中でどう動いてるの？」——そんな素朴な疑問に答えるために、今回は Codex リポジトリ（Rust 製）を“文系にもわかる”言葉で分解してみました。
