@@ -1,5 +1,5 @@
 ---
-title: "Zenn MCPでCodexリポジトリをやさしく分解してみた"
+title: "Codexリポジトリを分解して優しく解説してみた"
 emoji: "🤖"
 type: "tech"
 topics: ["rust", "cli", "tui", "mcp", "ai"]
