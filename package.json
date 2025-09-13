@@ -1,0 +1,23 @@
+{
+  "name": "ai-kiji",
+  "version": "1.0.0",
+  "description": "Content workspace for articles.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nanameru/ai-kiji.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nanameru/ai-kiji/issues"
+  },
+  "homepage": "https://github.com/nanameru/ai-kiji#readme",
+  "dependencies": {
+    "zenn-cli": "^0.2.3"
+  }
+}
