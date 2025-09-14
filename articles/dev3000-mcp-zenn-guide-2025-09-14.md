@@ -1,0 +1,74 @@
+## 概要
+- dev3000 と mcp を組み合わせると、ai-debugging に必須のログ（サーバー/ブラウザ/ネットワーク/スクリーンショット）を自動収集できます。最小セットアップで Playwright も活用可能です。
+- 本稿は dev3000 の導入から mcp 連携、検証方法までを短時間で再現するための手順書です。
+- 参考: 機能一覧やオプションは公式リポジトリに記載されています（https://github.com/vercel-labs/dev3000）。
+
+## 背景・前提
+- 対象読者: 初学者〜中級者（ローカルでの ai-debugging を始めたい人）
+- 動作環境: Node.js が動く macOS/Windows/Linux。Chrome/Chromium が必要。
+- 前提条件: 既存の Web アプリ（ポート 3000 など）をローカル起動できること。CLI の基本操作が可能であること。
+
+## 手順（dev3000 と mcp の連携手順）
+1. 目的: dev3000 のインストールと基本起動を行う → 期待結果: ログビューアが起動し、監視対象アプリの開発タイムラインが記録される
+
+```bash
+# dev3000 をグローバルに導入
+pnpm install -g dev3000
+
+# 既存アプリを監視しつつ起動（デフォルト: ポート 3000 / スクリプト: dev）
+dev3000
+```
+
+観測ポイント: ターミナルにサーバーログが流れ、ブラウザが自動起動します。`http://localhost:3684/logs` にアクセスすると視覚的なタイムラインが見えます（出典: https://github.com/vercel-labs/dev3000）。
+
+2. 目的: mcp 経由で AI エージェントからブラウザ制御/ログ参照を可能化する → 期待結果: AI ツール（例: Claude）から dev3000 の API にコマンドを発行できる
+
+```bash
+# 例: Claude への MCP サーバー登録（HTTP モード）
+claude mcp add dev3000 http://localhost:3684/api/mcp/mcp
+```
+
+観測ポイント: ツール登録が成功し、AI から「Use dev3000 to debug my app」といったプロンプトで操作できます（出典: https://github.com/vercel-labs/dev3000）。
+
+3. 目的: Chrome 拡張経由で軽量監視を行う（Playwright を使わない）→ 期待結果: 既存ブラウザのタブを監視できる
+
+```bash
+# Playwright を起動せずサーバーのみ稼働
+dev3000 --servers-only
+```
+
+操作: Chrome の `chrome://extensions/` で「デベロッパーモード」を ON → 「パッケージ化されていない拡張機能を読み込む」→ dev3000 の `chrome-extension` フォルダを選択。期待結果: localhost タブのイベントが収集されます（出典: https://github.com/vercel-labs/dev3000）。
+
+4. 目的: オプションでポートやプロファイルを調整する → 期待結果: チームの環境に合わせて安定運用
+
+```bash
+# 監視対象アプリが 5173 の場合
+dev3000 --port 5173
+
+# Chrome プロファイルディレクトリをカスタム
+dev3000 --profile-dir ./chrome-profile
+```
+
+## 検証・トラブルシュート
+- 確認1: ログビューア `http://localhost:3684/logs` にアクセスできること
+  - 期待結果: タイムラインに「Server logs」「Browser console」「Network」「Screenshots」が時系列で表示される（出典: https://github.com/vercel-labs/dev3000）
+  - 失敗時: ファイアウォール/ポート競合を確認。`--port` や `--profile-dir` の指定を試す
+
+- 確認2: MCP 経由の操作が AI から可能であること
+  - 期待結果: `read_consolidated_logs`、`search_logs`、`get_browser_errors`、`execute_browser_action` などのコマンドが利用可能（出典: https://github.com/vercel-labs/dev3000）
+  - 失敗時: MCP サーバー URL が `http://localhost:3684/api/mcp/mcp` であることを再確認。ツール登録をやり直す
+
+- 典型エラーと対処
+  - ブラウザ起動が遅い/重い: `--servers-only` + `chrome-extension` で軽量化
+  - スクリーンショットが取れない: Playwright モードで再実行し、自動撮影を有効化
+  - ログが断続的: 監視対象アプリのクラッシュ/ホットリロード設定を見直す
+
+## 参考・出典（dev3000 / ai-debugging / playwright）
+- GitHub: https://github.com/vercel-labs/dev3000
+- Logs ビューア/機能一覧/オプション/拡張: https://github.com/vercel-labs/dev3000
+
+## まとめ・次アクション
+- dev3000 を導入し、mcp とつないで ai-debugging の土台を整える
+- 最初はデフォルト起動、必要に応じて `--servers-only` や `--port` を調整する
+- 失敗時は `http://localhost:3684/logs` の可否と MCP URL を確認する
+- 継続的運用に向けて、チーム標準のプロファイル/ポート設計を固める
