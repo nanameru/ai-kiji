@@ -132,4 +132,4 @@ Codexは「人間が主役で、AIは相棒」という思想が通底してい�
 補足: 記事内の用語・比喩は初心者向けに噛み砕いています。厳密な仕様やAPIの最新版は、各ディレクトリのREADMEやソースコードのコメントをご確認ください。
 
 ## 参考・出典
-- Codex リポジトリ: https://github.com/codex-rs/codex
+- dev3000 リポジトリ: https://github.com/vercel-labs/dev3000
