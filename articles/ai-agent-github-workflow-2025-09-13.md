@@ -9,8 +9,6 @@ topics:
   - "mcp"
   - "tips"
 published: false
-publication_name: ""
-published_at: ""
 ---
 
 ## 概要
