@@ -122,6 +122,8 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 
 これで課金事故と重複生成を減らせます。
 
+![Start周りの運用ログ](/images/openclaw-instagram-automation/b86e1b68-e6bf-4ef1-8922-0d400e498dc2.png)
+
 ### Finalize改善（重複/状態不整合防止）
 
 - 投稿済みは除外
@@ -129,6 +131,7 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - その他を `skipped`
 - 状態保存をログより先に実行
 
+![Finalize周りの運用ログ](/images/openclaw-instagram-automation/c9cb246c-c2ad-4c80-997f-4f745a121b6e.png)
 ---
 
 ## Cron構成（最終イメージ）
@@ -138,6 +141,8 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - Finalize（15分ごと）
 - KPI分析（15分判定で6h/12h/24h通知）
 - Optimizer（日次）
+
+![Cron/運用スレッドの実画面](/images/openclaw-instagram-automation/8c15859f-6cea-4676-9b65-b4d682cf5ab8.png)
 
 ---
 
@@ -155,34 +160,6 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - `.secrets/instagram.env` でのみ管理
 
 ---
-
-## 画像ログ（添付分を記事へ反映）
-
-以下は運用中に取得したスクリーンショットです。
-
-### Meta / Graph API周り
-
-![Meta設定1](/images/openclaw-instagram-automation/71b1ccf1-f37a-43f4-a51a-640c95813429.png)
-![Meta設定2](/images/openclaw-instagram-automation/8c15859f-6cea-4676-9b65-b4d682cf5ab8.png)
-![Meta設定3](/images/openclaw-instagram-automation/8062c8bd-db69-40c9-8084-08092e44d160.png)
-![Meta設定4](/images/openclaw-instagram-automation/be70f372-924e-491c-9686-3d6421227431.png)
-![Meta設定5](/images/openclaw-instagram-automation/dfe1cf31-043c-42da-8921-1051b4100f26.png)
-![Meta設定6](/images/openclaw-instagram-automation/572addd3-98ce-4be3-a6a4-d422b4256ade.png)
-![Meta設定7](/images/openclaw-instagram-automation/149fb5f9-dae2-43c7-b3c6-8749f97dd0cc.png)
-![Meta設定8](/images/openclaw-instagram-automation/c9cb246c-c2ad-4c80-997f-4f745a121b6e.png)
-![Meta設定9](/images/openclaw-instagram-automation/053fde7c-6476-4b00-a410-400fc62ebac1.png)
-
-### ページ/権限選択周り
-
-![権限1](/images/openclaw-instagram-automation/5059ed6f-35a3-4631-9929-02a8d021c10a.png)
-![権限2](/images/openclaw-instagram-automation/a3d1cf49-95b6-474c-9259-33ca17962b94.png)
-![権限3](/images/openclaw-instagram-automation/77486277-1dd5-4985-84fb-97edae047608.png)
-
-### 投稿/運用ログ周り
-
-![運用1](/images/openclaw-instagram-automation/99d26f33-fe82-4a7a-8bd3-2bb06bb8aa78.png)
-![運用2](/images/openclaw-instagram-automation/c9a5f34d-16c0-407a-82d3-3266ca404430.png)
-![運用3](/images/openclaw-instagram-automation/b86e1b68-e6bf-4ef1-8922-0d400e498dc2.png)
 
 ---
 
