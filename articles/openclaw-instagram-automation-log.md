@@ -59,6 +59,8 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - 個人プロフィール文脈で `developers.facebook.com` を開き直し
 - 権限同意をやり直し
 
+![Meta権限まわりの実画面](/images/openclaw-instagram-automation/71b1ccf1-f37a-43f4-a51a-640c95813429.png)
+
 ---
 
 ### 2) `me/accounts` が空 / `instagram_business_account` が返らない
@@ -74,6 +76,8 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - ページ選択を明示して再同意
 - `/{page_id}?fields=instagram_business_account{id,username}` で最終確認
 
+![ページ/権限選択の実画面](/images/openclaw-instagram-automation/5059ed6f-35a3-4631-9929-02a8d021c10a.png)
+
 ---
 
 ### 3) OpenAI動画生成が 400 で失敗
@@ -88,6 +92,8 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - 課金上限・支払い設定の確認
 - さらに、Start前に既存completed未投稿を拾って**無駄生成をスキップ**する実装に変更
 
+![運用ログでの失敗確認画面](/images/openclaw-instagram-automation/99d26f33-fe82-4a7a-8bd3-2bb06bb8aa78.png)
+
 ---
 
 ### 4) 投稿ログの出し先がブレる
@@ -98,6 +104,8 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 **対処**
 - ログはフォーラム下の運用ログスレへ集約
 - さらに要望に合わせて「投稿ごとに新規ログスレッド作成」方針へ更新
+
+![運用ログスレッド管理画面](/images/openclaw-instagram-automation/c9a5f34d-16c0-407a-82d3-3266ca404430.png)
 
 ---
 
@@ -154,27 +162,27 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 
 ### Meta / Graph API周り
 
-![Meta設定1](./images/openclaw-instagram-automation/71b1ccf1-f37a-43f4-a51a-640c95813429.png)
-![Meta設定2](./images/openclaw-instagram-automation/8c15859f-6cea-4676-9b65-b4d682cf5ab8.png)
-![Meta設定3](./images/openclaw-instagram-automation/8062c8bd-db69-40c9-8084-08092e44d160.png)
-![Meta設定4](./images/openclaw-instagram-automation/be70f372-924e-491c-9686-3d6421227431.png)
-![Meta設定5](./images/openclaw-instagram-automation/dfe1cf31-043c-42da-8921-1051b4100f26.png)
-![Meta設定6](./images/openclaw-instagram-automation/572addd3-98ce-4be3-a6a4-d422b4256ade.png)
-![Meta設定7](./images/openclaw-instagram-automation/149fb5f9-dae2-43c7-b3c6-8749f97dd0cc.png)
-![Meta設定8](./images/openclaw-instagram-automation/c9cb246c-c2ad-4c80-997f-4f745a121b6e.png)
-![Meta設定9](./images/openclaw-instagram-automation/053fde7c-6476-4b00-a410-400fc62ebac1.png)
+![Meta設定1](/images/openclaw-instagram-automation/71b1ccf1-f37a-43f4-a51a-640c95813429.png)
+![Meta設定2](/images/openclaw-instagram-automation/8c15859f-6cea-4676-9b65-b4d682cf5ab8.png)
+![Meta設定3](/images/openclaw-instagram-automation/8062c8bd-db69-40c9-8084-08092e44d160.png)
+![Meta設定4](/images/openclaw-instagram-automation/be70f372-924e-491c-9686-3d6421227431.png)
+![Meta設定5](/images/openclaw-instagram-automation/dfe1cf31-043c-42da-8921-1051b4100f26.png)
+![Meta設定6](/images/openclaw-instagram-automation/572addd3-98ce-4be3-a6a4-d422b4256ade.png)
+![Meta設定7](/images/openclaw-instagram-automation/149fb5f9-dae2-43c7-b3c6-8749f97dd0cc.png)
+![Meta設定8](/images/openclaw-instagram-automation/c9cb246c-c2ad-4c80-997f-4f745a121b6e.png)
+![Meta設定9](/images/openclaw-instagram-automation/053fde7c-6476-4b00-a410-400fc62ebac1.png)
 
 ### ページ/権限選択周り
 
-![権限1](./images/openclaw-instagram-automation/5059ed6f-35a3-4631-9929-02a8d021c10a.png)
-![権限2](./images/openclaw-instagram-automation/a3d1cf49-95b6-474c-9259-33ca17962b94.png)
-![権限3](./images/openclaw-instagram-automation/77486277-1dd5-4985-84fb-97edae047608.png)
+![権限1](/images/openclaw-instagram-automation/5059ed6f-35a3-4631-9929-02a8d021c10a.png)
+![権限2](/images/openclaw-instagram-automation/a3d1cf49-95b6-474c-9259-33ca17962b94.png)
+![権限3](/images/openclaw-instagram-automation/77486277-1dd5-4985-84fb-97edae047608.png)
 
 ### 投稿/運用ログ周り
 
-![運用1](./images/openclaw-instagram-automation/99d26f33-fe82-4a7a-8bd3-2bb06bb8aa78.png)
-![運用2](./images/openclaw-instagram-automation/c9a5f34d-16c0-407a-82d3-3266ca404430.png)
-![運用3](./images/openclaw-instagram-automation/b86e1b68-e6bf-4ef1-8922-0d400e498dc2.png)
+![運用1](/images/openclaw-instagram-automation/99d26f33-fe82-4a7a-8bd3-2bb06bb8aa78.png)
+![運用2](/images/openclaw-instagram-automation/c9a5f34d-16c0-407a-82d3-3266ca404430.png)
+![運用3](/images/openclaw-instagram-automation/b86e1b68-e6bf-4ef1-8922-0d400e498dc2.png)
 
 ---
 
@@ -189,3 +197,4 @@ Discordの運用スレッド（固定指示書）を唯一の参照として、
 - 例外時の挙動を先に決める
 
 ここまで固めると、Instagram自動投稿は「動く」から「回る」に変わります。
+
