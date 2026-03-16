@@ -1,147 +1,191 @@
 ---
-title: "OpenClawでInstagram自動投稿基盤を作るまでの実戦ログ"
+title: "OpenClawでInstagram自動投稿ループを実運用したログ（失敗込み）"
 emoji: "🐙"
 type: "idea"
-topics: ["instagram", "openclaw", "automation", "sora", "api"]
+topics: ["instagram", "openclaw", "automation", "sora", "cron"]
 published: false
 ---
 
 ## この記事について
 
-この下書きは、Discord上での実運用ログを元に、
+Discordの運用スレッド（固定指示書）を唯一の参照として、
 
-- Instagram API連携
-- OpenAI動画生成（Sora系）
-- 自動投稿
-- 投稿後分析ループ（6h/12h/24h）
+- Sora動画生成
+- Instagram自動投稿
+- 6h/12h/24h分析
+- 障害時の切り分けと修正
 
-を実際に組んだ流れをまとめたものです。
+を**実際に回した記録**です。
 
----
-
-## 目的
-
-「動物系ショート動画を自動生成してInstagramへ投稿し、投稿後の分析を回して改善する」運用を作る。
+机上の設計ではなく、詰まりどころ（権限・トークン・重複・ログ運用）まで含めてまとめています。
 
 ---
 
-## 実装したこと（要点）
+## 先に結論（運用が安定した形）
 
-### 1. Instagram投稿の自動化スクリプト作成
+最終的に、以下のループに落ち着きました。
 
-`~/.agents/skills/instagram-auto-post/` に以下を作成。
-
-- `scripts/post_image.py`
-- `scripts/post_reel.py`
-- `scripts/oauth_helper.py`
-- `scripts/refresh_token.py`
-
-ポイント:
-
-- `container -> status FINISHED -> media_publish` の正攻法フロー
-- キャプションの改行崩れ対策（`\\n` を実改行へ変換）
-
-### 2. Meta OAuth連携
-
-- App ID / App Secret を設定
-- OAuth Redirect URI設定
-- 認可コード交換 -> long-lived token 取得
-- `IG_ACCESS_TOKEN` / `IG_USER_ID` を環境変数化
-
-### 3. 初回投稿（Reel）
-
-- Sora系で「ドジ猫」動画を生成
-- 公開URL化
-- Instagram Reels 投稿
-
-### 4. 分析ループの自動化
-
-cronジョブで以下を設定。
-
-- 2時間ごと分析
-- 日次レビュー
-- 投稿後6h/12h/24hの節目評価
-
-分析観点:
-
-- Views
-- 平均視聴時間
-- 完視聴率
-- Sends per reach
-- Saves per reach
+1. **トレンド調査**（FireClaw + Virlo参照）
+2. **Start**（新規生成。ただし未投稿completedがあれば再利用して新規生成スキップ）
+3. **Finalize**（完了動画の投稿、重複防止）
+4. **6h/12h/24h分析**（必要に応じて48h追補）
+5. **次回最適化**（プロンプト・投稿時刻の調整）
 
 ---
 
-## 実運用でハマったところ
+## 固定運用ルール（実装反映済み）
 
-### UI上は接続済みなのに APIで `instagram_business_account` が返らない
-
-原因:
-
-- ページ連携の最終反映待ち
-- 古いトークンで確認していた
-- 個人アカ連携とページ連携の混同
-
-対処:
-
-- ページ連携を再確認
-- 再認可してトークン再発行
-- 数分待って再確認
-
-### キャプションの `/n` 問題
-
-原因:
-
-- 改行を文字列として渡していた
-
-対処:
-
-- 投稿スクリプト側で `\\n -> \n` 変換
+- 2段階構成（Start/Finalize分離）
+- 1日1投稿ガード（JST）
+- 完了ジョブ複数時は最新1件のみ投稿、残りskipped
+- 投稿前照合（`prompt_hash / video_id / source_url`）
+- 投稿成功時はログより先に状態保存
+- 画像・動画の再利用は**Instagram未投稿のみ**
 
 ---
 
-## アルゴリズム対策（調査結果の要約）
+## 実際にハマったポイントと対処
 
-海外・国内の公開情報を照合すると、短期で効くのは以下。
+### 1) Meta権限まわり（`out_of_scope_redirect` / Explorer入れない）
 
-1. 視聴維持（watch time / 完視聴）
-2. シェア（sends）
-3. 反応率（likes per reach）
+**現象**
+- Graph API Explorerに入れない
+- `business.facebook.com/out_of_scope_redirect` に飛ぶ
 
-加えて必須条件:
+**原因**
+- Business文脈で開いていて、開発者ツールのコンテキストと衝突
 
-- オリジナル性
-- 他SNS透かしなし
-- 低品質/転載っぽい素材回避
-
----
-
-## 次のアクション
-
-- 投稿テンプレ10本を作成（冒頭3秒フック固定）
-- 週次で「勝ちパターン」更新
-- 失敗投稿の共通要因をDBで管理
+**対処**
+- 個人プロフィール文脈で `developers.facebook.com` を開き直し
+- 権限同意をやり直し
 
 ---
 
-## 画像について
+### 2) `me/accounts` が空 / `instagram_business_account` が返らない
 
-この下書きに、Discordで取得した実際の設定スクショを差し込む予定です。
+**現象**
+- `/me/accounts?fields=id,name,instagram_business_account` が空またはIG情報なし
 
-例:
+**原因**
+- ページ選択ミス（OpenClawページではない）
+- 認可ダイアログで対象ページの許可漏れ
 
-- Meta開発者設定画面
-- Instagram接続確認画面
-- 初回投稿の表示画面
-
-> 画像は `images/` 配下に置いて、本文に埋め込みます。
+**対処**
+- ページ選択を明示して再同意
+- `/{page_id}?fields=instagram_business_account{id,username}` で最終確認
 
 ---
 
-## 参考リンク
+### 3) OpenAI動画生成が 400 で失敗
 
-- Instagram Creators: Recommendations and Originality
-- Instagram Help: Protecting original content
-- Meta Graph API Docs
+**現象**
+- `POST /v1/videos` が 400
 
-（公開時に正式URLを整備）
+**原因（最終）**
+- `billing_hard_limit_reached`
+
+**対処**
+- 課金上限・支払い設定の確認
+- さらに、Start前に既存completed未投稿を拾って**無駄生成をスキップ**する実装に変更
+
+---
+
+### 4) 投稿ログの出し先がブレる
+
+**現象**
+- 固定スレと運用ログスレが混在
+
+**対処**
+- ログはフォーラム下の運用ログスレへ集約
+- さらに要望に合わせて「投稿ごとに新規ログスレッド作成」方針へ更新
+
+---
+
+## 反映したコード改善
+
+### Start改善（無駄生成防止）
+
+`ig_pipeline_start.py` を更新し、開始時に `GET /v1/videos` 相当で
+
+- completed
+- かつ未投稿
+
+があれば新規生成をスキップして再利用するように変更。
+
+これで課金事故と重複生成を減らせます。
+
+### Finalize改善（重複/状態不整合防止）
+
+- 投稿済みは除外
+- 投稿候補は最新1件
+- その他を `skipped`
+- 状態保存をログより先に実行
+
+---
+
+## Cron構成（最終イメージ）
+
+- Research（毎日）
+- Start（22:30 JST）
+- Finalize（15分ごと）
+- KPI分析（15分判定で6h/12h/24h通知）
+- Optimizer（日次）
+
+---
+
+## セキュリティで学んだこと
+
+実運用中に以下が発生しました。
+
+- トークン/シークレットをチャットへ貼ってしまう
+
+そのため、運用では必ず以下を徹底すべきです。
+
+- 漏れたトークンは即失効
+- App Secret再生成
+- 長期トークン再発行
+- `.secrets/instagram.env` でのみ管理
+
+---
+
+## 画像ログ（添付分を記事へ反映）
+
+以下は運用中に取得したスクリーンショットです。
+
+### Meta / Graph API周り
+
+![Meta設定1](./images/openclaw-instagram-automation/71b1ccf1-f37a-43f4-a51a-640c95813429.png)
+![Meta設定2](./images/openclaw-instagram-automation/8c15859f-6cea-4676-9b65-b4d682cf5ab8.png)
+![Meta設定3](./images/openclaw-instagram-automation/8062c8bd-db69-40c9-8084-08092e44d160.png)
+![Meta設定4](./images/openclaw-instagram-automation/be70f372-924e-491c-9686-3d6421227431.png)
+![Meta設定5](./images/openclaw-instagram-automation/dfe1cf31-043c-42da-8921-1051b4100f26.png)
+![Meta設定6](./images/openclaw-instagram-automation/572addd3-98ce-4be3-a6a4-d422b4256ade.png)
+![Meta設定7](./images/openclaw-instagram-automation/149fb5f9-dae2-43c7-b3c6-8749f97dd0cc.png)
+![Meta設定8](./images/openclaw-instagram-automation/c9cb246c-c2ad-4c80-997f-4f745a121b6e.png)
+![Meta設定9](./images/openclaw-instagram-automation/053fde7c-6476-4b00-a410-400fc62ebac1.png)
+
+### ページ/権限選択周り
+
+![権限1](./images/openclaw-instagram-automation/5059ed6f-35a3-4631-9929-02a8d021c10a.png)
+![権限2](./images/openclaw-instagram-automation/a3d1cf49-95b6-474c-9259-33ca17962b94.png)
+![権限3](./images/openclaw-instagram-automation/77486277-1dd5-4985-84fb-97edae047608.png)
+
+### 投稿/運用ログ周り
+
+![運用1](./images/openclaw-instagram-automation/99d26f33-fe82-4a7a-8bd3-2bb06bb8aa78.png)
+![運用2](./images/openclaw-instagram-automation/c9a5f34d-16c0-407a-82d3-3266ca404430.png)
+![運用3](./images/openclaw-instagram-automation/b86e1b68-e6bf-4ef1-8922-0d400e498dc2.png)
+
+---
+
+## まとめ
+
+この運用で一番大事なのは、機能よりも順序でした。
+
+- 先に認証と権限を固める
+- 生成と投稿を分離する
+- 状態保存を先にやる
+- ログ出し先を固定する
+- 例外時の挙動を先に決める
+
+ここまで固めると、Instagram自動投稿は「動く」から「回る」に変わります。
