@@ -1,3 +1,11 @@
+---
+title: "dev3000×MCPで始めるAIデバッグ：最短セットアップガイド"
+emoji: "🛠️"
+type: "tech"
+topics: ["dev3000", "mcp", "ai-debugging", "playwright"]
+published: false
+---
+
 ## 概要
 - dev3000 と mcp を組み合わせると、ai-debugging に必須のログ（サーバー/ブラウザ/ネットワーク/スクリーンショット）を自動収集できます。最小セットアップで Playwright も活用可能です。
 - 本稿は dev3000 の導入から mcp 連携、検証方法までを短時間で再現するための手順書です。
