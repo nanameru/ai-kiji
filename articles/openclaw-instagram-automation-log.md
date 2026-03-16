@@ -28,6 +28,81 @@ published: true
 
 ---
 
+## 前段階: Facebookページ作成〜Instagram API接続（ここを飛ばすと詰まる）
+
+ここが実は一番ハマりやすいので、最初に手順を固定します。
+
+### Step 0. 先に理解しておくこと
+
+Instagram投稿APIは、**個人アカウント連携だけでは動きません**。
+必要なのは次の3点です。
+
+1. Instagramがプロアカウント（ビジネス/クリエイター）
+2. FacebookページとInstagramが正しく紐づいている
+3. Meta Appで必要権限を取ったトークンがある
+
+この3つが1つでも欠けると、`me/accounts` で `instagram_business_account` が返らず、投稿が通りません。
+
+### Step 1. Facebookページを作る
+
+- URL: `https://www.facebook.com/pages/create`
+- とりあえず仮ページ名でもOK（後で変更可能）
+
+### Step 2. Instagram側をプロアカウント化
+
+Instagramアプリで以下を確認:
+
+- プロフィール → 設定とプライバシー → アカウントタイプ
+- ビジネス（またはクリエイター）になっていること
+
+### Step 3. FacebookページとInstagramをリンク
+
+最短は以下のどちらか:
+
+- Facebookページ設定 → リンク済みアカウント → Instagram
+- Meta Business settings → アカウント → Instagramアカウント
+
+重要なのは「接続済み表示」だけでなく、**対象ページにアセット割り当て済み**であること。
+
+### Step 4. Meta App側のOAuth設定
+
+- App ID / App Secret を取得
+- Valid OAuth Redirect URI を設定（例: `https://localhost/callback`）
+- 必要権限を付与
+  - `instagram_basic`
+  - `instagram_content_publish`
+  - `pages_show_list`
+  - `pages_read_engagement`
+
+### Step 5. 認可コード交換で長期トークン取得
+
+- 認可URLで同意 → `code` 取得
+- `code` を交換して long-lived token を発行
+- `IG_ACCESS_TOKEN` として保存
+
+### Step 6. `IG_USER_ID` を取得して固定
+
+Graph APIで以下を確認し、対象の `instagram_business_account.id` を取得:
+
+- `/me/accounts?fields=id,name,instagram_business_account`
+
+取得したIDを `IG_USER_ID` として保存。
+
+### Step 7. ここまで終わったら初回投稿テスト
+
+- 画像/動画URLを使って `container -> FINISHED -> publish` の順で投稿
+- 投稿URLが返れば接続成功
+
+### ここで実際に起きた詰まりポイント
+
+- UI上は接続済みだが API に反映されない
+- `business.facebook.com/out_of_scope_redirect`
+- 古いトークンで確認していて接続状態が更新されない
+
+対策は「再同意」「ページ割当確認」「トークン再発行」の3点セットでした。
+
+---
+
 ## 先に結論（運用が安定した形）
 
 まず結論です。安定したのは、次の5ステップを分離した構成でした。
